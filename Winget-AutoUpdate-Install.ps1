@@ -155,23 +155,23 @@ function Install-Prerequisites {
                 else {
                     $OSArch = "x86"
                 }
-                Write-host "-> Downloading VC_redist.$OSArch.exe..."
+                Write-host "Downloading VC_redist.$OSArch.exe..."
                 $SourceURL = "https://aka.ms/vs/17/release/VC_redist.$OSArch.exe"
-                $Installer = $WingetUpdatePath + "\VC_redist.$OSArch.exe"
+                $Installer = "$WingetUpdatePath\VC_redist.$OSArch.exe"
                 $ProgressPreference = 'SilentlyContinue'
                 Invoke-WebRequest $SourceURL -UseBasicParsing -OutFile (New-Item -Path $Installer -Force)
-                Write-host "-> Installing VC_redist.$OSArch.exe..."
+                Write-host "Installing VC_redist.$OSArch.exe..."
                 Start-Process -FilePath $Installer -Args "/quiet /norestart" -Wait
-                Remove-Item $Installer -ErrorAction Ignore
-                Write-host "-> MS Visual C++ 2015-2022 installed successfully" -ForegroundColor Green
+                Remove-Item $Installer -Force -ErrorAction Ignore
+                Write-host "MS Visual C++ 2015-2022 installed successfully" -ForegroundColor Green
             }
             catch {
-                Write-host "-> MS Visual C++ 2015-2022 installation failed." -ForegroundColor Red
+                Write-host "MS Visual C++ 2015-2022 installation failed." -ForegroundColor Red
                 Start-Sleep 3
             }
         }
         else {
-            Write-host "-> MS Visual C++ 2015-2022 will not be installed." -ForegroundColor Magenta
+            Write-host "MS Visual C++ 2015-2022 will not be installed." -ForegroundColor Magenta
         }
     }
     else {
@@ -181,29 +181,65 @@ function Install-Prerequisites {
 
 function Install-WinGet {
 
-    Write-Host "`nChecking if Winget is installed" -ForegroundColor Yellow
+    Write-Host "`nChecking if Winget is installed/up to date..." -ForegroundColor Yellow
 
-    #Check Package Install
+    #Check Winget Package Installed version
     $TestWinGet = Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq "Microsoft.DesktopAppInstaller" }
 
     #Current: v1.5.1881 = 1.20.1881.0 = 2023.707.2257.0
     If ([Version]$TestWinGet.Version -ge "2023.707.2257.0") {
 
-        Write-Host "WinGet is Installed" -ForegroundColor Green
+        Write-Host "WinGet is installed/up to date" -ForegroundColor Green
 
     }
     Else {
 
+        #Check if Microsoft UI Xaml 2.7.0 is installed
+        if (!(Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq "Microsoft.UI.Xaml.2.7" })) {
+            try {
+                #Install Microsoft UI Xaml 2.7.0
+                Write-host "Downloading Microsoft UI Xaml 2.7.0..."
+                $UiXamlUrl = "https://www.nuget.org/api/v2/package/Microsoft.UI.Xaml/2.7.0"
+                $UiXamlZip = "$WingetUpdatePath\Microsoft.UI.XAML.2.7.zip"
+                Invoke-RestMethod -Uri $UiXamlUrl -OutFile $UiXamlZip
+                Expand-Archive -Path $UiXamlZip -DestinationPath "$WingetUpdatePath\extracted" -Force
+                Add-AppxProvisionedPackage -Online -PackagePath "$WingetUpdatePath\extracted\tools\AppX\x64\Release\Microsoft.UI.Xaml.2.7.appx" -SkipLicense | Out-Null
+                Remove-Item -Path $UiXamlZip -Force -ErrorAction Ignore
+                Remove-Item -Path "$WingetUpdatePath\extracted" -Force -Recurse -ErrorAction Ignore
+                Write-host "Microsoft UI Xaml 2.7.0 installed successfully" -ForegroundColor Green
+            }
+            catch {
+                Write-host "Microsoft UI Xaml 2.7.0 installation failed." -ForegroundColor Red
+            }
+        }
+
+        #Check if Microsoft VCLibs x64 14.00 is installed
+        if (!(Get-AppxProvisionedPackage -Online | Where-Object { $_.DisplayName -eq "Microsoft.VCLibs.140.00.UWPDesktop" })) {
+            try {
+                #Install
+                Write-host "Downloading Microsoft VCLibs x64 14.00..."
+                $VCLibsUrl = "https://aka.ms/Microsoft.VCLibs.x64.14.00.Desktop.appx"
+                $VCLibsFile = "$WingetUpdatePath\Microsoft.VCLibs.x64.14.00.Desktop.appx"
+                Invoke-RestMethod -Uri $VCLibsUrl -OutFile $VCLibsFile
+                Add-AppxProvisionedPackage -Online -PackagePath "$WingetUpdatePath\Microsoft.VCLibs.x64.14.00.Desktop.appx" -SkipLicense | Out-Null
+                Remove-Item -Path $VCLibsFile -Force -ErrorAction Ignore
+                Write-host "Microsoft VCLibs x64 14.00 installed successfully" -ForegroundColor Green
+            }
+            catch {
+                Write-host "Microsoft VCLibs x64 14.00 installation failed." -ForegroundColor Red
+            }
+        }
+
         #Download WinGet MSIXBundle
-        Write-Host "-> Not installed. Downloading WinGet..."
+        Write-Host "Downloading Winget MSIXBundle for App Installer..."
         $WinGetURL = "https://github.com/microsoft/winget-cli/releases/download/v1.5.1881/Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle"
         $WebClient = New-Object System.Net.WebClient
-        $WebClient.DownloadFile($WinGetURL, "$PSScriptRoot\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle")
+        $WebClient.DownloadFile($WinGetURL, "$WingetUpdatePath\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle")
 
         #Install WinGet MSIXBundle
         try {
-            Write-Host "-> Installing Winget MSIXBundle for App Installer..."
-            Add-AppxProvisionedPackage -Online -PackagePath "$PSScriptRoot\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -SkipLicense | Out-Null
+            Write-Host "Installing Winget MSIXBundle for App Installer..."
+            Add-AppxProvisionedPackage -Online -PackagePath "$WingetUpdatePath\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -SkipLicense | Out-Null
             Write-Host "Installed Winget MSIXBundle for App Installer" -ForegroundColor Green
         }
         catch {
@@ -211,7 +247,7 @@ function Install-WinGet {
         }
 
         #Remove WinGet MSIXBundle
-        Remove-Item -Path "$PSScriptRoot\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -Force -ErrorAction Continue
+        Remove-Item -Path "$WingetUpdatePath\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe.msixbundle" -Force -ErrorAction Continue
 
     }
 
