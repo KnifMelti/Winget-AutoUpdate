@@ -282,7 +282,7 @@ Use **AppID**`-arguments.txt` to pass **winget parameters** (not installer argum
 - `--skip-dependencies` - Skip dependency installations when they conflict
 - `--architecture <arch>` - Force architecture (`x86`, `x64`, `arm64`)
 - `--version <version>` - Pin to specific version
-  - If used `$app.AvailableVersion = <version>`, fixing https://github.com/Romanitho/Winget-AutoUpdate/issues/1125
+  - WAU pins the target version to the specified `--version` value (Fixes [#1125](https://github.com/Romanitho/Winget-AutoUpdate/issues/1125))
 - `--ignore-security-hash` - Bypass hash verification
 - `--ignore-local-archive-malware-scan` - Skip AV scanning
 

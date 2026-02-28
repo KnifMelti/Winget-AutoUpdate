@@ -33,8 +33,8 @@ Function Update-App ($app) {
     # Load mods
     $ModsPreInstall, $ModsOverride, $ModsCustom, $ModsArguments, $ModsUpgrade, $ModsInstall, $ModsInstalled, $ModsNotInstalled = Test-Mods $app.Id
 
-    # If arguments mod specifies --version, pin AvailableVersion to that value
-    if ($ModsArguments) {
+    # If arguments mod specifies --version, and no override/custom is present, pin AvailableVersion to that value
+    if ($ModsArguments -and -not $ModsOverride -and -not $ModsCustom) {
         # Parse arguments respecting quotes and spaces, then look for --version
         $modsArgArray = ConvertTo-WingetArgumentArray $ModsArguments
         $versionIndex = [array]::IndexOf($modsArgArray, '--version')
@@ -42,7 +42,7 @@ Function Update-App ($app) {
             $pinnedVersion = $modsArgArray[$versionIndex + 1]
             $app.AvailableVersion = $pinnedVersion
             Write-ToLog "-> $($app.Name) version pinned to $($app.AvailableVersion) via arguments mod" "DarkYellow"
-            if ($app.Version -eq $app.AvailableVersion) {
+            if ($app.Version -like "$($app.AvailableVersion)*") {
                 Write-ToLog "$($app.Name) $($app.Version) is already the pinned version, skipping." "Green"
                 return
             }
