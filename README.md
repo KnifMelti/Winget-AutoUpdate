@@ -258,10 +258,10 @@ Use **AppID**`-custom.txt` to add extra arguments to the installer (with `-h` si
 
 This uses the **content** as a native **winget --custom** parameter when upgrading.
 
-#### Arguments (Winget-level parameters) ⭐ NEW
+#### Arguments (Winget-level parameters)
 Use **AppID**`-arguments.txt` to pass **winget parameters** (not installer arguments, with `-h` silent mode).
 
-💡 **Locale Tip:** Many applications revert to English or system default language during WAU upgrades because winget doesn't remember the original installation locale. To prevent this:
+**Locale Tip:** Many applications revert to English or system default language during WAU upgrades because winget doesn't remember the original installation locale. To prevent this:
 - **Best solution:** Use locale-specific package IDs in `included_apps.txt` (e.g., `Mozilla.Firefox.sv-SE` instead of `Mozilla.Firefox`)
 - **Alternative:** Create `{AppID}-arguments.txt` with `--locale` parameter to force language on every upgrade
 
@@ -278,16 +278,17 @@ Use **AppID**`-arguments.txt` to pass **winget parameters** (not installer argum
 
 **Common use cases:**
 - `--locale <locale>` - Force application language (e.g., `pl-PL`, `en-US`, `de-DE`)
-  - 💡 **Recommended alternative:** Use locale-specific package IDs when available (e.g., `Mozilla.Firefox.sv-SE`, `Mozilla.Firefox.de`, `Mozilla.Firefox.ESR.pl`) to get latest versions
+  - **Recommended alternative:** Use locale-specific package IDs when available (e.g., `Mozilla.Firefox.sv-SE`, `Mozilla.Firefox.de`, `Mozilla.Firefox.ESR.pl`) to get latest versions
 - `--skip-dependencies` - Skip dependency installations when they conflict
 - `--architecture <arch>` - Force architecture (`x86`, `x64`, `arm64`)
 - `--version <version>` - Pin to specific version
+  - If used `$app.AvailableVersion = <version>`, fixing https://github.com/Romanitho/Winget-AutoUpdate/issues/1125
 - `--ignore-security-hash` - Bypass hash verification
 - `--ignore-local-archive-malware-scan` - Skip AV scanning
 
-⚠️ **Important:** When combining `--locale` and `--version`, the specific version must have an installer available for that locale. Not all versions support all locales. Check available versions with `winget show --id <AppID> --versions`.
+**Important:** When combining `--locale` and `--version`, the specific version must have an installer available for that locale. Not all versions support all locales. Check available versions with `winget show --id <AppID> --versions`.
 
-💡 **Locale Best Practice:** Search for locale-specific packages with `winget search <AppName>` to see if your language has a dedicated package ID (e.g., `Mozilla.Firefox.sv-SE` for Swedish Firefox). These packages are maintained with the latest versions in your preferred language.
+**Locale Best Practice:** Search for locale-specific packages with `winget search <AppName>` to see if your language has a dedicated package ID (e.g., `Mozilla.Firefox.sv-SE` for Swedish Firefox). These packages are maintained with the latest versions in your preferred language.
 
 **Command-line usage:** You can also pass arguments when calling `Winget-Install.ps1`:
 ```powershell
