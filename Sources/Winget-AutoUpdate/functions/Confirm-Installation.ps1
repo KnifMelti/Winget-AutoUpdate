@@ -11,10 +11,10 @@
 .OUTPUTS
     Boolean: True if installed at version.
 #>
-Function Confirm-Installation ($AppName, $AppVer) {
+Function Confirm-Installation ($AppName, $AppVer, $src) {
 
     $JsonFile = "$env:TEMP\InstalledApps.json"
-    & $Winget export -s winget -o $JsonFile --include-versions | Out-Null
+    & $Winget export -s $src -o $JsonFile --include-versions | Out-Null
 
     $Packages = (Get-Content $JsonFile -Raw | ConvertFrom-Json).Sources.Packages
     $match = $Packages | Where-Object { $_.PackageIdentifier -eq $AppName -and $_.Version -like "$AppVer*" }

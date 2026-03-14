@@ -18,10 +18,10 @@
 .NOTES
     Uses WinGet show command with source agreements accepted.
 #>
-Function Get-AppInfo ($AppID) {
+Function Get-AppInfo ($AppID, $src) {
 
     # Query WinGet for application details
-    $String = & $winget show $AppID --accept-source-agreements -s winget | Out-String
+    $String = & $winget show $AppID --accept-source-agreements -s $src | Out-String
 
     # Extract Release Notes URL using regex
     $ReleaseNote = [regex]::match($String, "(?<=Release Notes Url: )(.*)(?=\n)").Groups[0].Value

@@ -140,7 +140,7 @@ function Test-ModsUninstall ($AppID) {
 
 #Install function
 function Install-App ($AppID, $AppArgs) {
-    $IsInstalled = Confirm-Installation $AppID
+    $IsInstalled = Confirm-Installation $AppID -src 'winget'
     if (!($IsInstalled) -or $AllowUpgrade ) {
         #Check if mods exist (or already exist) for preinstall/override/custom/arguments/install/installed
         $ModsPreInstall, $ModsOverride, $ModsCustom, $ModsArguments, $ModsInstall, $ModsInstalled = Test-ModsInstall $($AppID)
@@ -185,7 +185,7 @@ function Install-App ($AppID, $AppArgs) {
         }
 
         #Check if install is ok
-        $IsInstalled = Confirm-Installation $AppID
+        $IsInstalled = Confirm-Installation $AppID -src 'winget'
         if ($IsInstalled) {
             Write-ToLog "-> $AppID successfully installed." "Green"
 
@@ -210,7 +210,7 @@ function Install-App ($AppID, $AppArgs) {
 
 #Uninstall function
 function Uninstall-App ($AppID, $AppArgs) {
-    $IsInstalled = Confirm-Installation $AppID
+    $IsInstalled = Confirm-Installation $AppID -src 'winget'
     if ($IsInstalled) {
         #Check if mods exist (or already exist) for preuninstall/uninstall/uninstalled
         $ModsPreUninstall, $ModsUninstall, $ModsUninstalled = Test-ModsUninstall $AppID
@@ -244,7 +244,7 @@ function Uninstall-App ($AppID, $AppArgs) {
         }
 
         #Check if uninstall is ok
-        $IsInstalled = Confirm-Installation $AppID
+        $IsInstalled = Confirm-Installation $AppID -src 'winget'
         if (!($IsInstalled)) {
             Write-ToLog "-> $AppID successfully uninstalled." "Green"
             if ($ModsUninstalled) {
