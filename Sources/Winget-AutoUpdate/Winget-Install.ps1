@@ -48,7 +48,8 @@ param(
     [Parameter(Mandatory = $False)] [Switch] $Uninstall,
     [Parameter(Mandatory = $False)] [String] $LogPath,
     [Parameter(Mandatory = $False)] [Switch] $WAUWhiteList,
-    [Parameter(Mandatory = $False)] [Switch] $AllowUpgrade
+    [Parameter(Mandatory = $False)] [Switch] $AllowUpgrade,
+    [Parameter(Mandatory = $False)] [String] $Source = "winget",
 )
 
 
@@ -139,8 +140,8 @@ function Test-ModsUninstall ($AppID) {
 }
 
 #Install function
-function Install-App ($AppID, $AppArgs) {
-    $IsInstalled = Confirm-Installation $AppID -src 'winget'
+function Install-App ($AppID, $AppArgs, $Source = 'winget') {
+    $IsInstalled = Confirm-Installation $AppID -src $Source
     if (!($IsInstalled) -or $AllowUpgrade ) {
         #Check if mods exist (or already exist) for preinstall/override/custom/arguments/install/installed
         $ModsPreInstall, $ModsOverride, $ModsCustom, $ModsArguments, $ModsInstall, $ModsInstalled = Test-ModsInstall $($AppID)
@@ -170,7 +171,7 @@ function Install-App ($AppID, $AppArgs) {
             $finalArgs = if ($ModsArguments) { $ModsArguments } else { $AppArgs }
             Write-ToLog "-> Arguments (winget-level): $finalArgs" # Winget parameters with -h
             $argArray = ConvertTo-WingetArgumentArray $finalArgs
-            $WingetArgs = @("install", "--id", $AppID, "-e", "--accept-package-agreements", "--accept-source-agreements", "-s", "winget") + $argArray + @("-h")
+            $WingetArgs = @("install", "--id", $AppID, "-e", "--accept-package-agreements", "--accept-source-agreements", "-s", $Source) + $argArray + @("-h")
         }
         else {
             $WingetArgs = "install --id $AppID -e --accept-package-agreements --accept-source-agreements -s winget -h" -split " "
@@ -185,7 +186,7 @@ function Install-App ($AppID, $AppArgs) {
         }
 
         #Check if install is ok
-        $IsInstalled = Confirm-Installation $AppID -src 'winget'
+        $IsInstalled = Confirm-Installation $AppID -src $Source
         if ($IsInstalled) {
             Write-ToLog "-> $AppID successfully installed." "Green"
 
@@ -209,8 +210,8 @@ function Install-App ($AppID, $AppArgs) {
 }
 
 #Uninstall function
-function Uninstall-App ($AppID, $AppArgs) {
-    $IsInstalled = Confirm-Installation $AppID -src 'winget'
+function Uninstall-App ($AppID, $AppArgs, $Source = 'winget') {
+    $IsInstalled = Confirm-Installation $AppID -src $Source
     if ($IsInstalled) {
         #Check if mods exist (or already exist) for preuninstall/uninstall/uninstalled
         $ModsPreUninstall, $ModsUninstall, $ModsUninstalled = Test-ModsUninstall $AppID
@@ -244,7 +245,7 @@ function Uninstall-App ($AppID, $AppArgs) {
         }
 
         #Check if uninstall is ok
-        $IsInstalled = Confirm-Installation $AppID -src 'winget'
+        $IsInstalled = Confirm-Installation $AppID -src $Source
         if (!($IsInstalled)) {
             Write-ToLog "-> $AppID successfully uninstalled." "Green"
             if ($ModsUninstalled) {
@@ -399,14 +400,14 @@ if ($Winget) {
 
         #Install or Uninstall command
         if ($Uninstall) {
-            Uninstall-App $AppID $AppArgs
+            Uninstall-App $AppID $AppArgs -src $Source
         }
         else {
             #Check if app exists on Winget Repo
             $Exists = Confirm-Exist $AppID
             if ($Exists) {
                 #Install
-                Install-App $AppID $AppArgs
+                Install-App $AppID $AppArgs -src $source
             }
         }
 
