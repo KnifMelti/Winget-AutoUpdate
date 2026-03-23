@@ -8,6 +8,10 @@
 .PARAMETER AppVer
     Expected version prefix.
 
+.PARAMETER src
+    The WinGet source to query (e.g. "winget", "msstore"). Required; passed
+    directly to `winget export -s`.
+
 .OUTPUTS
     Boolean: True if installed at version.
 #>

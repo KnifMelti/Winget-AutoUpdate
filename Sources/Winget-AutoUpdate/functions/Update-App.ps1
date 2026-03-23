@@ -8,8 +8,11 @@
 
 .PARAMETER app
     PSCustomObject with Name, Id, Version, AvailableVersion properties.
+
+.PARAMETER src
+    The WinGet source to use (e.g. 'winget', 'msstore'). Defaults to 'winget'.
 #>
-Function Update-App ($app, $src) {
+Function Update-App ($app, $src = "winget") {
 
     # Helper function to build winget command parameters
     function Get-WingetParams ($Command, $ModsOverride, $ModsCustom, $ModsArguments) {

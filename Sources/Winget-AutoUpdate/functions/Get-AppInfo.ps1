@@ -9,11 +9,14 @@
 .PARAMETER AppID
     The WinGet package identifier to query.
 
+.PARAMETER src
+    The WinGet source to query (e.g. "winget", "msstore").
+
 .OUTPUTS
     String containing the release notes URL, or empty if not found.
 
 .EXAMPLE
-    $releaseUrl = Get-AppInfo "Microsoft.PowerShell"
+    $releaseUrl = Get-AppInfo "Microsoft.PowerShell" "winget"
 
 .NOTES
     Uses WinGet show command with source agreements accepted.
