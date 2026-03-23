@@ -1,11 +1,9 @@
 <#
 .SYNOPSIS
 Install apps with Winget through Intune or SCCM.
-(Can be used standalone.) - Deprecated in favor of Winget-AutoUpdate.
 
 .DESCRIPTION
 Allow to run Winget in System Context to install your apps.
-(https://github.com/Romanitho/Winget-Install) - Deprecated in favor of Winget-AutoUpdate.
 
 .PARAMETER AppIDs
 Forward Winget App ID to install. For multiple apps, separate with ",". Case sensitive.
