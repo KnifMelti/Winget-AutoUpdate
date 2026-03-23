@@ -47,7 +47,7 @@ param(
     [Parameter(Mandatory = $False)] [String] $LogPath,
     [Parameter(Mandatory = $False)] [Switch] $WAUWhiteList,
     [Parameter(Mandatory = $False)] [Switch] $AllowUpgrade,
-    [Parameter(Mandatory = $False)] [String] $Source = "winget",
+    [Parameter(Mandatory = $False)] [String] $Source = "winget"
 )
 
 
@@ -75,7 +75,7 @@ else {
 #Check if App exists in Winget Repository
 function Confirm-Exist ($AppID) {
     #Check is app exists in the winget repository
-    $WingetApp = & $winget show --Id $AppID -e --accept-source-agreements -s winget | Out-String
+    $WingetApp = & $winget show --Id $AppID -e --accept-source-agreements -s $Source | Out-String
 
     #Return if AppID exists
     if ($WingetApp -match [regex]::Escape($AppID)) {
@@ -158,11 +158,11 @@ function Install-App ($AppID, $AppArgs, $Source = 'winget') {
         Write-ToLog "-> Installing $AppID..." "DarkYellow"
         if ($ModsOverride) {
             Write-ToLog "-> Arguments (overriding default): $ModsOverride" # Without -h (user overrides default)
-            $WingetArgs = "install --id $AppID -e --accept-package-agreements --accept-source-agreements -s winget --override $ModsOverride" -split " "
+            $WingetArgs = @("install", "--id", $AppID, "-e", "--accept-package-agreements", "--accept-source-agreements", "-s", $Source, "--override", $ModsOverride)
         }
         elseif ($ModsCustom) {
             Write-ToLog "-> Arguments (customizing default): $ModsCustom" # With -h (user customizes default)
-            $WingetArgs = "install --id $AppID -e --accept-package-agreements --accept-source-agreements -s winget -h --custom $ModsCustom" -split " "
+            $WingetArgs = @("install", "--id", $AppID, "-e", "--accept-package-agreements", "--accept-source-agreements", "-s", $Source, "-h", "--custom", $ModsCustom)
         }
         elseif ($ModsArguments -or (-not [string]::IsNullOrWhiteSpace($AppArgs))) {
             # Prioritize ModsArguments from file over AppArgs from command line
@@ -172,7 +172,7 @@ function Install-App ($AppID, $AppArgs, $Source = 'winget') {
             $WingetArgs = @("install", "--id", $AppID, "-e", "--accept-package-agreements", "--accept-source-agreements", "-s", $Source) + $argArray + @("-h")
         }
         else {
-            $WingetArgs = "install --id $AppID -e --accept-package-agreements --accept-source-agreements -s winget -h" -split " "
+            $WingetArgs = @("install", "--id", $AppID, "-e", "--accept-package-agreements", "--accept-source-agreements", "-s", $Source, "-h")
         }
 
         Write-ToLog "-> Running: `"$Winget`" $WingetArgs"
@@ -398,14 +398,14 @@ if ($Winget) {
 
         #Install or Uninstall command
         if ($Uninstall) {
-            Uninstall-App $AppID $AppArgs -src $Source
+            Uninstall-App $AppID $AppArgs $Source
         }
         else {
             #Check if app exists on Winget Repo
             $Exists = Confirm-Exist $AppID
             if ($Exists) {
                 #Install
-                Install-App $AppID $AppArgs -src $source
+                Install-App $AppID $AppArgs $Source
             }
         }
 
