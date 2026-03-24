@@ -30,6 +30,25 @@ Function Update-App ($app) {
         return @{ Params = $params + "-h"; Log = $Command }
     }
 
+    # Load mods
+    $ModsPreInstall, $ModsOverride, $ModsCustom, $ModsArguments, $ModsUpgrade, $ModsInstall, $ModsInstalled, $ModsNotInstalled = Test-Mods $app.Id
+
+    # If arguments mod specifies --version, and no override/custom is present, pin AvailableVersion to that value
+    if ($ModsArguments -and -not $ModsOverride -and -not $ModsCustom) {
+        # Parse arguments respecting quotes and spaces, then look for --version
+        $modsArgArray = ConvertTo-WingetArgumentArray $ModsArguments
+        $versionIndex = [array]::IndexOf($modsArgArray, '--version')
+        if ($versionIndex -ge 0 -and ($versionIndex + 1) -lt $modsArgArray.Count) {
+            $pinnedVersion = $modsArgArray[$versionIndex + 1]
+            $app.AvailableVersion = $pinnedVersion
+            Write-ToLog "-> $($app.Name) version pinned to $($app.AvailableVersion) via arguments mod" "DarkYellow"
+            if ($app.Version -like "$($app.AvailableVersion)*") {
+                Write-ToLog "$($app.Name) $($app.Version) is already the pinned version, skipping." "Green"
+                return
+            }
+        }
+    }
+
     # Get release notes for notification button
     $ReleaseNoteURL = Get-AppInfo $app.Id
     $Button1Text = if ($ReleaseNoteURL) { $NotifLocale.local.outputs.output[10].message } else { $null }
@@ -39,9 +58,6 @@ Function Update-App ($app) {
     Start-NotifTask -Title ($NotifLocale.local.outputs.output[2].title -f $app.Name) `
         -Message ($NotifLocale.local.outputs.output[2].message -f $app.Version, $app.AvailableVersion) `
         -MessageType "info" -Balise $app.Name -Button1Action $ReleaseNoteURL -Button1Text $Button1Text
-
-    # Load mods
-    $ModsPreInstall, $ModsOverride, $ModsCustom, $ModsArguments, $ModsUpgrade, $ModsInstall, $ModsInstalled, $ModsNotInstalled = Test-Mods $app.Id
 
     Write-ToLog "##########   WINGET UPGRADE: $($app.Id)   ##########" "Gray"
 

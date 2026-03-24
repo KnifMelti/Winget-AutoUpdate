@@ -18,7 +18,9 @@
     Boolean: True if updated, False otherwise.
 #>
 function Test-ListPath ($ListPath, $UseWhiteList, $WingetUpdatePath) {
-
+    # Enable TLS 1.2 for secure connections
+    [Net.ServicePointManager]::SecurityProtocol = [Net.ServicePointManager]::SecurityProtocol -bor [Net.SecurityProtocolType]::Tls12 #DevSkim: ignore DS440020,DS440020 Hard-coded SSL/TLS Protocol
+        
     $ListType = if ($UseWhiteList) { "included_apps.txt" } else { "excluded_apps.txt" }
     $LocalList = Join-Path $WingetUpdatePath $ListType
     $dateLocal = $null

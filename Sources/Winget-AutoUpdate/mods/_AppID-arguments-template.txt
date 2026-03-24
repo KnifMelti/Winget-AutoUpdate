@@ -48,10 +48,10 @@
 # --architecture x86
 # --architecture arm64
 
-# 4. Pin to specific version (but WAU will still try upgrading...)
-# Prevent auto-upgrade to latest:
+# 4. Pin to a specific version
+# WAU pins the target version to the value passed via --version and will not auto-upgrade beyond it:
 # --version 120.0.1
-# WARNING: When combining --locale and --version, the specific version
+# WARNING: When combining --locale and --version, the chosen version
 # must have an installer available for that locale in the winget manifest.
 
 # 5. Ignore security hash mismatches
