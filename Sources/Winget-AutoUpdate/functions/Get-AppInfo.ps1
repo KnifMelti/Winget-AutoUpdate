@@ -21,8 +21,11 @@
 .NOTES
     Uses WinGet show command with source agreements accepted.
 #>
-Function Get-AppInfo ($AppID, $src) {
+Function Get-AppInfo ($AppID, $src = 'winget') {
 
+    if ([string]::IsNullOrWhiteSpace($src)) {
+        $src = 'winget'
+    }
     # Query WinGet for application details
     $String = & $winget show $AppID --accept-source-agreements -s $src | Out-String
 
