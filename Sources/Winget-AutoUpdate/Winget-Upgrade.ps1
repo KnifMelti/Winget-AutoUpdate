@@ -307,12 +307,12 @@ if (Test-Network) {
                     }
                     #if app is in "include list", update it
                     elseif ($toUpdate -contains $app.Id) {
-                        Update-App $app
+                        Update-App $app -src $Script:WingetSourceCustom
                     }
                     #if app with wildcard is in "include list", update it
                     elseif ($toUpdate | Where-Object { $app.Id -like $_ }) {
                         Write-ToLog "$($app.Name) is wildcard in the include list."
-                        Update-App $app
+                        Update-App $app -src $Script:WingetSourceCustom
                     }
                     #else, skip it
                     else {
@@ -338,7 +338,7 @@ if (Test-Network) {
                     }
                     # else, update it
                     else {
-                        Update-App $app
+                        Update-App $app -src $Script:WingetSourceCustom
                     }
                 }
             }
