@@ -236,6 +236,7 @@ jobs:
           commit: ${{ env.BRANCH }}
           prerelease: true
           generateReleaseNotes: true
+          immutableCreate: true
           name: ${{ steps.format_version.outputs.ReleaseName }}
           artifacts: "WAU.msi,${{ steps.build_project.outputs.admx_zip_name }}"
           body: |
