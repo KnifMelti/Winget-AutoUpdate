@@ -133,7 +133,7 @@ jobs:
 
       # Step 3: Generate new semantic version number
       - name: Auto Increment Semver Action
-        uses: MCKanpolat/auto-semver-action@5003b8d37f4b03d95f15303ea10242cbf7c13141 # 2
+        uses: MCKanpolat/auto-semver-action@632a84f5d1232fe655c7a85684ba3105c28b3fec # 1.0.11
         if: steps.check_prs.outputs.BUILD_NEEDED == 'true'
         id: versioning
         with:
